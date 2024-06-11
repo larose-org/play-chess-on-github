@@ -43,11 +43,8 @@ function parseEnvVars() {
     throw new Error("Invalid WHITE_USERNAME");
   }
 
-  if (
-    blackUsername === STOCKFISH_USERNAME &&
-    whiteUsername === STOCKFISH_USERNAME
-  ) {
-    throw new Error("Stockfish can't play against itself");
+  if (blackUsername === whiteUsername) {
+    throw new Error(`${blackUsername} can't play against themselves`);
   }
 
   return {
