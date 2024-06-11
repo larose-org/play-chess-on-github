@@ -1,0 +1,41 @@
+name: Create Game
+
+on:
+  workflow_dispatch:
+    inputs:
+      white_username:
+        required: true
+        type: string
+      black_username:
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  create-game:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Create a Game
+        env:
+          WHITE_USERNAME: ${{ inputs.white_username }}
+          BLACK_USERNAME: ${{ inputs.black_username }}
+        run: |
+          make create-game
+
+      - name: Trigger Main Workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run main.yml --ref main

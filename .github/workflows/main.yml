@@ -1,0 +1,39 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  main:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Install Stockfish
+        run: |
+          wget https://github.com/official-stockfish/Stockfish/releases/latest/download/stockfish-ubuntu-x86-64-avx2.tar
+          tar -xvf stockfish-ubuntu-x86-64-avx2.tar
+
+      - name: Update games
+        env:
+          STOCKFISH: stockfish/stockfish-ubuntu-x86-64-avx2
+        run: |
+          file $STOCKFISH
+          make update-games

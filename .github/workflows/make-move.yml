@@ -1,0 +1,44 @@
+name: Make Move
+
+on:
+  workflow_dispatch:
+    inputs:
+      game_id:
+        required: true
+        type: string
+      move:
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.game_id }}
+
+jobs:
+  make-move:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Make a Move
+        env:
+          GAME_ID: ${{ inputs.game_id }}
+          MOVE: ${{ inputs.move }}
+        run: |
+          make make-move
+
+      - name: Trigger Main Workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run main.yml --ref main
