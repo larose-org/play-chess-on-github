@@ -4,6 +4,12 @@ Yes, you read that right; you can now play chess on GitHub.
 
 ## Getting Started
 
+### Requiring Collaborator Role for this Repository
+
+Currently, collaborator access is required to run the workflows in this repository and play chess.
+
+Please open an issue requesting collaborator access.
+
 ### Creating a New Game
 
 - Run the "Create Game" workflow.
