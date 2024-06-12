@@ -9,6 +9,8 @@ on:
       black_username:
         required: true
         type: string
+  discussion:
+    types: [created]
 
 permissions:
   actions: write
