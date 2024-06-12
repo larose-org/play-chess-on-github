@@ -15,6 +15,7 @@ on:
 permissions:
   actions: write
   contents: write
+  discussions: write
 
 jobs:
   create-game:
@@ -31,8 +32,9 @@ jobs:
 
       - name: Create a Game
         env:
-          WHITE_USERNAME: ${{ inputs.white_username }}
-          BLACK_USERNAME: ${{ inputs.black_username }}
+          DISCUSSION_ID: ${{ github.event.discussion.id }}
+          DISCUSSION_TITLE: ${{ github.event.discussion.title }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           make create-game
 

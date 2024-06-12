@@ -23,24 +23,44 @@ function getCurrentTimestamp(): string {
   return `${year}${month}${day}T${hours}${minutes}${seconds}${milliSeconds}Z`;
 }
 
-function parseEnvVars() {
-  const blackUsername = process.env["BLACK_USERNAME"];
-  const whiteUsername = process.env["WHITE_USERNAME"];
+function parsePlayerUsernames(input: string) {
+  const regex = /^\s*(.*?)\s*vs\s*(.*?)\s*$/i;
+  const match = input.match(regex);
 
-  if (blackUsername === undefined) {
-    throw new Error("BLACK_USERNAME is not set");
+  if (match === null) {
+    throw new Error("Invalid title");
   }
+
+  const [, whiteUsername, blackUsername] = match;
+  return { whiteUsername, blackUsername };
+}
+
+function parseEnvVars() {
+  const discussionId = process.env["DISCUSSION_ID"];
+  const discussionTitle = process.env["DISCUSSION_TITLE"];
+  const githubToken = process.env["GITHUB_TOKEN"];
+
+  if (discussionId === undefined) {
+    throw new Error("DISCUSSION_ID is not set");
+  }
+
+  if (discussionTitle === undefined) {
+    throw new Error("DISCUSSION_TITLE is not set");
+  }
+
+  if (githubToken === undefined) {
+    throw new Error("GITHUB_TOKEN is not set");
+  }
+
+  const { blackUsername, whiteUsername } =
+    parsePlayerUsernames(discussionTitle);
 
   if (!isValidGithubUsernameOrStockfish(blackUsername)) {
-    throw new Error("Invalid BLACK_USERNAME");
-  }
-
-  if (whiteUsername === undefined) {
-    throw new Error("WHITE_USERNAME is not set");
+    throw new Error("Invalid black username");
   }
 
   if (!isValidGithubUsernameOrStockfish(whiteUsername)) {
-    throw new Error("Invalid WHITE_USERNAME");
+    throw new Error("Invalid white username");
   }
 
   if (blackUsername === whiteUsername) {
@@ -49,20 +69,49 @@ function parseEnvVars() {
 
   return {
     blackUsername,
+    discussionId,
     whiteUsername,
   };
 }
 
+// function parseEnvVars() {
+//   const blackUsername = process.env["BLACK_USERNAME"];
+//   const whiteUsername = process.env["WHITE_USERNAME"];
+
+//   if (blackUsername === undefined) {
+//     throw new Error("BLACK_USERNAME is not set");
+//   }
+
+//   if (!isValidGithubUsernameOrStockfish(blackUsername)) {
+//     throw new Error("Invalid BLACK_USERNAME");
+//   }
+
+//   if (whiteUsername === undefined) {
+//     throw new Error("WHITE_USERNAME is not set");
+//   }
+
+//   if (!isValidGithubUsernameOrStockfish(whiteUsername)) {
+//     throw new Error("Invalid WHITE_USERNAME");
+//   }
+
+//   if (blackUsername === whiteUsername) {
+//     throw new Error(`${blackUsername} can't play against themselves`);
+//   }
+
+//   return {
+//     blackUsername,
+//     whiteUsername,
+//   };
+// }
+
 async function main() {
   const isCI = process.env["CI"] === "true";
 
-  const { blackUsername, whiteUsername } = parseEnvVars();
-
-  const gameId = getCurrentTimestamp();
+  const { blackUsername, discussionId, whiteUsername } = parseEnvVars();
 
   await fs.promises.mkdir(GAMES_DIRECTORY, { recursive: true });
 
-  const gameFilepath = path.join(GAMES_DIRECTORY, `${gameId}.pgn`);
+  const gameFilepath = path.join(GAMES_DIRECTORY, `${discussionId}.pgn`);
 
   const gameFilehandle = await fs.promises.open(gameFilepath, "w");
 

@@ -6,6 +6,7 @@
     "@types/node": "20.14.2",
     "chess.js": "1.0.0-beta.8",
     "exact": "0.8.0",
+    "octokit": "4.0.2",
     "ts-node": "10.9.2",
     "typescript": "5.4.3"
   }
